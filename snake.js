@@ -1,15 +1,16 @@
 /*
-Create by Learn Web Developement
-Youtube channel : https://www.youtube.com/channel/UC8n8ftV94ZU_DJLOLtrpORA
+Created by Learn Web Developement
+On Youtube under the account "Code Explained"
+Youtube channel link : https://www.youtube.com/channel/UC8n8ftV94ZU_DJLOLtrpORA
 */
 
 const cvs = document.getElementById("snake");
 const ctx = cvs.getContext("2d");
 
-// create the unit
+// create the "box" unit, which is 32 pixels for each of the "squares" on our "ground" image
 const box = 32;
 
-// load images
+// load images (path may be different depending on your own file tructures)
 
 const ground = new Image();
 ground.src = "img/ground.png";
@@ -26,6 +27,8 @@ let right = new Audio();
 let left = new Audio();
 let down = new Audio();
 
+//  if audio files are not loading, check your paths, they may be different on your computer depending on file structure
+//  These assume all files are in a sub-folder called "audio" placed in the current directory
 dead.src = "audio/dead.mp3";
 eat.src = "audio/eat.mp3";
 up.src = "audio/up.mp3";
@@ -33,7 +36,7 @@ right.src = "audio/right.mp3";
 left.src = "audio/left.mp3";
 down.src = "audio/down.mp3";
 
-// create the snake
+// create the initial snake at coordinated x-9 and y-10 in terms of our box-units, which organize space on the playing field
 
 let snake = [];
 
@@ -42,7 +45,7 @@ snake[0] = {
     y : 10 * box
 };
 
-// create the food
+// create the food image at a random place on the playing field
 
 let food = {
     x : Math.floor(Math.random()*17+1) * box,
@@ -53,11 +56,11 @@ let food = {
 
 let score = 0;
 
-//control the snake
+//controls for the snake
 
 let d;
 
-document.addEventListener("keydown",direction);
+document.addEventListener("keydown", direction);
 
 function direction(event){
     let key = event.keyCode;
@@ -76,7 +79,7 @@ function direction(event){
     }
 }
 
-// cheack collision function
+// check for collision with a custom function
 function collision(head,array){
     for(let i = 0; i < array.length; i++){
         if(head.x == array[i].x && head.y == array[i].y){
@@ -86,7 +89,7 @@ function collision(head,array){
     return false;
 }
 
-// draw everything to the canvas
+// draw everything to the canvas (referring to the HTML tag where all the visuals will be rendered) 
 
 function draw(){
     
@@ -106,7 +109,8 @@ function draw(){
     let snakeX = snake[0].x;
     let snakeY = snake[0].y;
     
-    // which direction
+    // use the direction variable "d" to determine which direction the snake is moving in
+    // this is where the new head will be generated to create the illusion of movement
     if( d == "LEFT") snakeX -= box;
     if( d == "UP") snakeY -= box;
     if( d == "RIGHT") snakeX += box;
@@ -114,34 +118,41 @@ function draw(){
     
     // if the snake eats the food
     if(snakeX == food.x && snakeY == food.y){
+        // increment the score
         score++;
+        // play the audio for the food being eaten
         eat.play();
+        // generate a new food object
+        // NOTE: It appears that food CAN spawn on the snake's body with this method of random generation
         food = {
             x : Math.floor(Math.random()*17+1) * box,
             y : Math.floor(Math.random()*15+3) * box
         }
-        // we don't remove the tail
+        // if food is eaten, we don't remove the tail (which lengthens the snake's body by one)
     }else{
-        // remove the tail
+        // if the snake's head isn't on the same box as the food object, remove the tail, maintaining the same body length
         snake.pop();
     }
     
-    // add new Head
+    // add a new Head to the snake
     
     let newHead = {
         x : snakeX,
         y : snakeY
     }
     
-    // game over
+    // check for game over conditions, colliding with the walls or the snake's own body
     
     if(snakeX < box || snakeX > 17 * box || snakeY < 3*box || snakeY > 17*box || collision(newHead,snake)){
+        // stop the game
         clearInterval(game);
+        // play death sound
         dead.play();
     }
     
     snake.unshift(newHead);
     
+//  draw the score, which will be "white" in color, 45 pixels in size, and of the font-family "Changa one"
     ctx.fillStyle = "white";
     ctx.font = "45px Changa one";
     ctx.fillText(score,2*box,1.6*box);
